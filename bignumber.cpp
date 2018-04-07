@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fstream>
 #include <time.h>
+#include <fstream>
 using std::ifstream;
 using std::ofstream;
 
@@ -29,7 +29,7 @@ bigNumber::bigNumber(const char* string)
         strSize--;
         strSign = 1;
     }
-    // проверка входной строки
+
     const char* pStr = string + strSign;
     while (*pStr)
     {
@@ -42,25 +42,21 @@ bigNumber::bigNumber(const char* string)
         pStr++;
     }
 
-
-    // количество разрядов - округление до большего целого от (длина строки) / 9
     this->_SetSize((strSize + strSign + 8) / 9);
 
-    // разбиваем строку на части по 9 символов
     for (int i = 0; i < (strSize + strSign) / 9; i++)
     {
         pStr -= 9;
         char splStr[10];
         memcpy(splStr, pStr, 9);
-        splStr[9] = '\0'; // получили очередную строку из 9 символов
+        splStr[9] = '\0';
         unsigned int digitI = atol(splStr);
         this->_digits[i] = digitI;
     }
 
-    // обрабатываем оставшиеся символы (если длина строки не кратна 9)
     char ost[10];
     memset(ost, 0, 10);
-    memcpy(ost, string + strSign, pStr - string - strSign); // получили строку - необработанная часть
+    memcpy(ost, string + strSign, pStr - string - strSign);
     if (strlen(ost) > 0)
     {
         unsigned int lastDigit = atol(ost);
@@ -178,26 +174,18 @@ bool bigNumber::SaveNumberToFile(const char* filename)
 }
 
 bool bigNumber::SaveNumberInBinFile(const char* filename)
-{// будем считать, что в бинарный файл необходимо записать число по основанию 256
-    // то есть необходимо перейти от BASE к 256 (256 - потому что максимальное значение байта - 255)
-    // для этого надо находить остатки от деления на 256
-    // пока число не уменьшиться до 0
-
+{
     ofstream Result_file(filename, std::ios::binary);
     if (Result_file.fail())
         return false;
-
-    bigNumber temp = *this; // число, которое будем делить на 256
-    bigNumber b256 = 256; // чтобы каждый раз не вызывать конструктор
+    bigNumber temp = *this;
+    bigNumber b256 = 256;
     bigNumber b0 = (long long int)0;
 
     while (temp != b0)
     {
         bigNumber remainder;
-        temp = _Division(temp, b256, remainder); // делим temp на 256, в remainder - остаток
-
-        // то, что осталось в remainder - необходимо записать в файл, точнее самый младший разряд
-        // ведь остаток от деления на 256 при BASE > 256 будет занимать один разряд
+        temp = _Division(temp, b256, remainder);
         unsigned char ost = remainder[0];
         Result_file.write((char*)&ost, 1);
     }
@@ -207,9 +195,7 @@ bool bigNumber::SaveNumberInBinFile(const char* filename)
 }
 
 bool bigNumber::GetNumberFromBinFile(const char* filename)
-{// будем считать, что в бинарном файле записаны разряды числа по модулю 256.
-    // таким образом, чтобы считать число из бинарного файла необходимо каждый байт
-    // умножить на 256 ^ i, где i - позиция байта в файле и всё это сложить
+{
     ifstream Bin_file(filename, std::ios::binary);
 
     if (Bin_file.fail())
@@ -219,12 +205,10 @@ bool bigNumber::GetNumberFromBinFile(const char* filename)
     int SizeOfFile = Bin_file.tellg();
     Bin_file.seekg(0, std::ios::beg);
 
-    // считываем содержимое файла
     unsigned char* fileContent = new unsigned char[SizeOfFile];
     Bin_file.read((char*)fileContent, SizeOfFile);
     Bin_file.close();
 
-    // переведём содержимое файла к основанию BASE
     bigNumber res;
     bigNumber b256 = 1;
     for (int i = 0; i < SizeOfFile; i++)
@@ -262,7 +246,7 @@ bigNumber bigNumber::operator+(const bigNumber& right) const
 }
 
 bigNumber bigNumber::operator-() const
-{// унарный минус
+{
     bigNumber res(*this);
     res._sign = !res._sign;
     return res;
@@ -292,7 +276,7 @@ bigNumber bigNumber::operator%(const bigNumber& right) const
 }
 
 bigNumber bigNumber::operator^(const bigNumber& right) const
-{// возведение *this в степень right
+{
     bigNumber res = 1;
     bigNumber base = *this;
     for (bigNumber i = right; i > (long long int) 0; i = i - 1)
@@ -580,7 +564,7 @@ bigNumber bigNumber::_Sum_and_Sub(const bigNumber& left, const bigNumber& right)
 }
 
 bigNumber bigNumber::_Multiplication(const bigNumber A, const bigNumber B) const
-{// простое умножение "столбиком"
+{
     bigNumber res;
     res._SetSize(A._size + B._size);
     unsigned int carry = 0;
@@ -602,7 +586,7 @@ bigNumber bigNumber::_Multiplication(const bigNumber A, const bigNumber B) const
 }
 
 bigNumber bigNumber::_Division(const bigNumber& A, const bigNumber& B, bigNumber &remainder) const
-{// возвращает целую часть от деления, в remainder - остаток
+{
     remainder = A;
     remainder._sign = 0;
 
