@@ -24,6 +24,10 @@ public slots:
     void pb_secret_file_import();
     void pb_pub_key_import();
     void pb_priv_key_import();
+
+    void pb_sign_check();
+    void pb_sign_produce();
+    void pb_sign_import();
 private:
     Ui::MainWindow *ui;
     Key* key;

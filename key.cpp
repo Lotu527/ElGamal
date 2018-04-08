@@ -1,6 +1,8 @@
 #include "key.h"
 #include "tool.h"
+#include "md5.h"
 #include<iostream>
+#include<stdio.h>
 #include<QDebug>
 Key::Key()
 {
@@ -55,6 +57,11 @@ std::string Key::getCipher()
     return this->ciphertext;
 }
 
+std::string Key::getSign()
+{
+    return this->signtext;
+}
+
 bool Key::save(string dir)
 {
     //保存公钥和私钥
@@ -94,6 +101,13 @@ bool Key::ReadPrivKey(const char *filename)
     return true;
 }
 
+bool Key::ReadSign(const char *filename)
+{
+    this->signtext = ReadFromFile(filename);
+    if(signtext.empty())return false;
+    return true;
+}
+
 
 //对密文解密
 //p,选取的素数
@@ -107,7 +121,7 @@ bigNumber Key::decrypt(bigNumber p, bigNumber x, bigNumber a, bigNumber b)
 }
 //对明文M加密
 //p，选取的素数
-//g，模p的一个本原
+//g，本原元
 //y，公钥
 bigNumber *Key::encrypt(bigNumber p, bigNumber g, bigNumber y, bigNumber m)
 {
@@ -118,7 +132,8 @@ bigNumber *Key::encrypt(bigNumber p, bigNumber g, bigNumber y, bigNumber m)
     bigNumber* arr = new bigNumber[2];
     bigNumber k = GenerateRandomMax(p-2) + 1;
     arr[0] = Pow(g,k,p);
-    arr[1] = Pow(y,k) * m % p;
+    arr[1] = Pow(y,k,p);
+    arr[1] = arr[1] * m % p;
     return arr;
 }
 
@@ -129,6 +144,7 @@ bigNumber *Key::encrypt()
     }
 
     bigNumber m = NumberFromBinString(this->getPlain());
+    qDebug()<<m.GetString();
     int arr[4];
     arr[0]=0;
     arr[3]=this->pub_key.length();
@@ -142,7 +158,7 @@ bigNumber *Key::encrypt()
     return encrypt(p,g,y,m);
 }
 
-bigNumber Key::decrypt()
+std::string Key::decrypt()
 {
     int tag = this->ciphertext.find('\n');
     bigNumber C1=this->ciphertext.substr(0,tag).c_str();
@@ -150,6 +166,46 @@ bigNumber Key::decrypt()
     tag = this->priv_key.find('\n');
     bigNumber p(this->priv_key.substr(0,tag).c_str());
     bigNumber x(this->priv_key.substr(tag+1,this->priv_key.length()-tag).c_str());
+    bigNumber m = decrypt(p,x,C1,C2);
+    return GetNumber(m);
+}
 
-    return decrypt(p,x,C1,C2);
+bigNumber *Key::SignProduce()
+{
+    bigNumber* rs = new bigNumber[2];
+
+    unsigned char* text = GetUnsignChar(this->getPlain());
+    unsigned char result[16] = {0};
+    md5(text,this->getPlain().length(),result);
+    bigNumber p = 19;
+    bigNumber g = 2;
+    bigNumber k = 5;
+    bigNumber x = 9;
+    bigNumber y = 18;
+    bigNumber hm = NumberFromChars(GetChar(result,16),16);
+    rs[0] = Pow(g,k,p);
+    rs[1] = ((hm - x * rs[0])*Fermat(k,p-1)) % (p - 1);
+    return rs;
+}
+
+bool Key::Check()
+{
+    unsigned char* text = GetUnsignChar(this->getPlain());
+    unsigned char result[16] = {0};
+    md5(text,this->getPlain().length(),result);
+    bigNumber hm = NumberFromChars(GetChar(result,16),16);
+    bigNumber p = 19;
+    bigNumber g = 2;
+    bigNumber k = 5;
+    bigNumber x = 9;
+    bigNumber y = 18;
+
+    int tag = this->signtext.find('\n');
+    bigNumber r=this->signtext.substr(0,tag).c_str();
+    bigNumber s=this->signtext.substr(tag+1,this->signtext.length()-tag).c_str();
+
+    bigNumber a = (Pow(y,r,p) * Pow(r,s,p)) % p;
+    bigNumber b = Pow(g,hm,p);
+    if(a==b)return true;
+    return false;
 }

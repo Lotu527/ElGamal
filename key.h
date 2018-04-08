@@ -16,18 +16,24 @@ public:
     string getPub();
     string getPlain();
     string getCipher();
+    string getSign();
     bool save(string dir);
     bool ReadPlaintext(const char* filename);
     bool ReadCiphertext(const char* filename);
     bool ReadPubKey(const char* filename);
     bool ReadPrivKey(const char* filename);
+    bool ReadSign(const char* filename);
     bigNumber* encrypt();
-    bigNumber decrypt();
+    std::string decrypt();
+
+    bigNumber* SignProduce();
+    bool Check();
 private:
     string priv_key;
     string pub_key;
     string plaintext;
     string ciphertext;
+    string signtext;
     bigNumber decrypt(bigNumber p,bigNumber x,bigNumber a,bigNumber b);
     bigNumber *encrypt(bigNumber p,bigNumber g,bigNumber y,bigNumber m);
 };

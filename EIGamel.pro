@@ -21,7 +21,8 @@ HEADERS += \
         mainwindow.h \
     key.h \
     bignumber.h \
-    tool.h
+    tool.h \
+    md5.h
 
 FORMS += \
     mainwindow.ui
