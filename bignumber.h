@@ -2,10 +2,11 @@
 #define BIGNUMBER_H
 
 #include <iostream>
-
 #define BASE 1000000000
 #define DIV_ON_ZERO 1
-
+/*
+大数模板
+*/
 class bigNumber
 {
 public:
@@ -66,7 +67,6 @@ public:
     unsigned int operator[](int i) const;
 
 private:
-    //Т.к оператор new имеет ограничение на максимальный размер массива 0x7fffffff байт поэтому тип у _size - int
     int _size;
     unsigned int* _digits;
     int _sign;
@@ -81,20 +81,11 @@ private:
     friend bigNumber GenerateRandomLen(int bitLen);
     friend bigNumber GenerateRandomMax(bigNumber max);
 };
-
+//获取指定bit长度的随机数
 bigNumber GenerateRandomLen(int bitLen);
-
+//获取不大于max的随机数
 bigNumber GenerateRandomMax(bigNumber max);
 
-//bigNumber Pow(const bigNumber& A, const bigNumber& B, bigNumber& modulus);
-
-//void initRandom();
-
-//bool MillerRabinPass(bigNumber a,bigNumber s,bigNumber t,bigNumber n);
-
-//bool MillerRabin(bigNumber n);
-
-//bigNumber GeneratePrime(int bitlen);
 
 #endif // BIGNUMBER_H
 

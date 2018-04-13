@@ -14,20 +14,20 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-public slots:
-    void pb_key_produce();
-    void pb_key_export();
+public slots://槽函数
+    void pb_key_produce();//生成密钥
+    void pb_key_export();//导出密钥
 
-    void pb_file_import();
-    void pb_encrypt();
-    void pb_decrypt();
-    void pb_secret_file_import();
-    void pb_pub_key_import();
-    void pb_priv_key_import();
+    void pb_file_import();//文件导入
+    void pb_encrypt();//加密明文
+    void pb_decrypt();//解密密文
+    void pb_secret_file_import();//密文导入
+    void pb_pub_key_import();//公钥导入
+    void pb_priv_key_import();//私钥导入
 
-    void pb_sign_check();
-    void pb_sign_produce();
-    void pb_sign_import();
+    void pb_sign_check();//签名检查
+    void pb_sign_produce();//签名产生
+    void pb_sign_import();//签名导入
 private:
     Ui::MainWindow *ui;
     Key* key;

@@ -8,6 +8,7 @@
 
 using std::ifstream;
 using std::ofstream;
+//大数幂运算，求A的B次方，modulus是规定的范围，如果结果大于等于它会进行模运算
 bigNumber Pow(const bigNumber& A, const bigNumber& B, bigNumber& modulus)
 {
     if (modulus <= (long long int) 0)
@@ -25,6 +26,7 @@ bigNumber Pow(const bigNumber& A, const bigNumber& B, bigNumber& modulus)
 
     return result;
 }
+//大数幂运算，求A的B次方
 bigNumber Pow(const bigNumber& A,const bigNumber& B){
     bigNumber a(A), b(B), result(1);
 
@@ -35,7 +37,7 @@ bigNumber Pow(const bigNumber& A,const bigNumber& B){
     }
     return result;
 }
-
+//初始化随机种子
 void initRandom()
 {
     srand(time(NULL));
@@ -69,7 +71,7 @@ bool MillerRabin(bigNumber n){
         a = 1;
         a = a-1;
         while (a==0) {
-            a = GenerateRandomMax(n-4)+2;
+            a = GenerateRandomMax(n-4)+2;// 2<= a <= n-2
         }
         if(MillerRabinPass(a,s,t,n)){
             return false;
@@ -89,6 +91,7 @@ bigNumber GeneratePrime(int bitlen)
     }
     return P;
 }
+//求乘法群Z*_p 的一个本原元
 bigNumber GenerateG(bigNumber p)
 {
     bigNumber g = 2;
@@ -96,9 +99,9 @@ bigNumber GenerateG(bigNumber p)
     while ((g*g)%p != one && (g*p)%p !=one) {
         g = GenerateRandomMax(p-1);
     }
-    std::cout<<g.GetString()<<"\n";
     return g;
 }
+//把字符串存储到文件中
 bool SaveFile(const char* filename,std::string str)
 {
     ofstream Result_file(filename);
@@ -111,7 +114,7 @@ bool SaveFile(const char* filename,std::string str)
 
     return true;
 }
-
+//从文件中读取字符串
 char* ReadFromFile(const char* filename)
 {
     ifstream Text_file(filename);
@@ -128,7 +131,7 @@ char* ReadFromFile(const char* filename)
     Text_file.close();
     return string;
 }
-
+//把字符串映射为一个数
 bigNumber NumberFromChars(char* str,long len)
 {
     bigNumber res;
@@ -141,6 +144,7 @@ bigNumber NumberFromChars(char* str,long len)
     }
     return res;
 }
+//把字符串映射为一个数
 bigNumber NumberFromBinString(std::string str){
     if(str.empty()){
         exit(1);
@@ -148,9 +152,7 @@ bigNumber NumberFromBinString(std::string str){
     return NumberFromChars((char*)str.c_str(),str.length());
 }
 
-
-
-
+//把大数逆映射到文本，按二进制格式存入文件
 bool SaveNumberInBinFile(const char* filename,bigNumber temp)
 {
     ofstream Result_file(filename, std::ios::binary);
@@ -170,6 +172,7 @@ bool SaveNumberInBinFile(const char* filename,bigNumber temp)
     return true;
 }
 
+//把大数转换为字符串
 std::string GetNumber(bigNumber temp){
     bigNumber b256 = 256;
     bigNumber b0 = (long long int)0;
@@ -184,10 +187,12 @@ std::string GetNumber(bigNumber temp){
     return str;
 }
 
+//把字符串转换为大数
 bigNumber StringToNumber(std::string str){
     return bigNumber(str.c_str());
 }
 
+//把字符串转换为无符号字符数组
 unsigned char* GetUnsignChar(std::string str){
     long len = str.length();
     unsigned char* re = new unsigned char[len+1];
@@ -197,6 +202,7 @@ unsigned char* GetUnsignChar(std::string str){
     re[len]='\0';
     return re;
 }
+//把无符号数组转换为有符号数组
 char* GetChar(unsigned char* str,int len){
     char* re = new char[len];
     for(int i=0;i<len;i++){
@@ -204,7 +210,7 @@ char* GetChar(unsigned char* str,int len){
     }
     return re;
 }
-
+//费马小定理获取逆元
 bigNumber Fermat(bigNumber a,bigNumber p){
     return Pow(a,p-1,p);
 }
